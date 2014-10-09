@@ -10,10 +10,11 @@
 ################################################################################
 convert.allele.calls = function(geno) {
   # Get the number of alleles at each SNP.
-  tbl = apply(geno, 2, unique)
-  tbl = lapply(tbl, function(a) { a[a != "H" & a != "N"] })
-  tbl = lapply(tbl, sort)
-  t2 = unlist(lapply(tbl, paste, collapse = ""))
+  t2 = apply(geno, 2, function(a){
+    a <- unique(a);
+    a <- a[a != "H" & a != "N"];
+    paste(sort(a), collapse = "")
+  })
   t3 = table(t2)
  
   # Create a number genotype matrix.
