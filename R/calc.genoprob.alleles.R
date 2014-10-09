@@ -20,7 +20,8 @@
 #            plot: boolean that is true if the user would like to plot a sample
 #                  chromosome as the model progresses.
 calc.genoprob.alleles = function(data, chr, founders, snps, output.dir = ".",
-                        trans.prob.fxn = do.trans.probs, plot = FALSE) {
+                        trans.prob.fxn = do.trans.probs, plot = FALSE,
+                        write.gp36=FALSE) {
   # No NAs in geno.
   if(any(is.na(data$geno))) {
     data$geno[is.na(data$geno)] = "N"
@@ -142,7 +143,7 @@ calc.genoprob.alleles = function(data, chr, founders, snps, output.dir = ".",
       # Write out the smoothed probabilities and the founder state meand and 
       # variances.
       write.results(prsmth = tmp$prsmth, b = tmp$b, output.dir = output.dir, 
-	                chr = curr.chr, all.chr = chr)
+	                chr = curr.chr, all.chr = chr, write.gp36=write.gp36)
       rm(tmp)
     } # else
     gc()

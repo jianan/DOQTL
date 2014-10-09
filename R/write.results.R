@@ -4,7 +4,7 @@
 # autosomes.  On the X Chr, you must specify which sex is being written out.
 # 
 write.results = function(prsmth, theta.rho.means, theta.rho.covars, b, output.dir,
-                         chr, all.chr, sex, write.gp36=TRUE) {
+                         chr, all.chr, sex, write.gp36=FALSE, write.b=FALSE) {
   if(!missing(prsmth)) {
     dimnames(prsmth)[[2]] = make.names(dimnames(prsmth)[[2]])
     prsmth = exp(prsmth) ## in *.genotype.probs.txt, values are log-ed.
@@ -56,7 +56,7 @@ write.results = function(prsmth, theta.rho.means, theta.rho.covars, b, output.di
       save(theta.rho.covars, file = paste(output.dir, "chr", chr, ".", sex,
            ".final.covars.Rdata", sep = ""))
     } # else
-  } else if(!missing(b)) {
+  } else if(!missing(b) & write.b) {
     if(chr != "X") {
       # Write out the genotype mean and variance estimates.
       save(b, file = paste(output.dir, "chr", chr, ".emission.probs.Rdata", 
