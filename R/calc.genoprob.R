@@ -602,23 +602,6 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
 
   } # else if(method = "intensity")
 
-  # Convert the *.genotype.probs.txt files to *.Rdata files.
-  create.Rdata.files(dir(path = output.dir, pattern = "genotype.probs.txt",
-                     full.names = TRUE))
-
-  # Create a single founder allele probability file.
-  if(sampletype == "DOF1") {
-
-    condense.model.probs(path = output.dir, write = paste(output.dir,
-                         "founder.probs.Rdata", sep = "/"), model = "full")
-
-  } else {
-
-    condense.model.probs(path = output.dir, write = paste(output.dir,
-                         "founder.probs.Rdata", sep = "/"))
-
-  } # else
- 
   # Create genotype plots if the user requested it.
   if(plot) {
 

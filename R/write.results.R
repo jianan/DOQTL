@@ -4,14 +4,32 @@
 # autosomes.  On the X Chr, you must specify which sex is being written out.
 # 
 write.results = function(prsmth, theta.rho.means, theta.rho.covars, b, output.dir,
-                         chr, all.chr, sex) {
+                         chr, all.chr, sex, write.gp36=TRUE) {
   if(!missing(prsmth)) {
     dimnames(prsmth)[[2]] = make.names(dimnames(prsmth)[[2]])
-    for(i in 1:dim(prsmth)[2]) {
-       write.table(t(prsmth[,i,]), paste(output.dir, dimnames(prsmth)[[2]][i],
-                   ".genotype.probs.txt", sep = ""), append = chr != all.chr[1],
-                   sep = "\t", col.names = chr == all.chr[1]) 
-    } # for(i)
+    prsmth = exp(prsmth) ## in *.genotype.probs.txt, values are log-ed.
+    if(write.gp36){
+      save(prsmth, file=paste0(output.dir, "Chr", chr, ".founder.probs.36.Rdata"))
+    }
+    
+    # Create a matrix that we can use to multiply the 36 state probabilities.
+    spl = strsplit(dimnames(prsmth)[[1]], split = "")
+    names(spl) = dimnames(prsmth)[[1]]
+    spl = lapply(spl, factor, levels = sort(unique(unlist(spl))))
+    spl = lapply(spl, table)
+    mat = matrix(unlist(spl), length(spl[[1]]), length(spl), dimnames = 
+        list(names(spl[[1]]), names(spl)))
+    mat = mat * 0.5
+    
+    # Place the founder probabilities in the matrix.
+    model.probs <- array(NA, dim=c(dim(prsmth)[2], 8, dim(prsmth)[3]))
+    for(i in 1:dim(prsmth)[2]){
+      model.probs[i,,] = mat %*% prsmth[,i,]
+    }
+    dimnames(model.probs)[[2]] <- LETTERS[1:8]
+    dimnames(model.probs)[c(1,3)] <- dimnames(prsmth)[c(2,3)]
+    save(model.probs, file=paste0(output.dir, "Chr", chr, ".founder.probs.Rdata"))
+
   } # if(!missing(prsmth))
   # Write out the genotype mean and variance estimates.
   if(!missing(theta.rho.means)) {  
