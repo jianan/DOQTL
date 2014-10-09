@@ -14,11 +14,12 @@ add.missing.F1s = function(founders, snps) {
   if(length(missing) > 0) {
     # Expand missing to 2 samples per genotype, one for males and one for females.
     missing = rep(missing, each = 2)
+    missing.names = paste0(missing, c("F", "M"))
     # Allele Calls
     if(mthd == "allele") {
       # Add columns for the new F1s.
       founders$geno = data.frame(rbind(founders$geno, matrix("", length(missing), 
-                      ncol(founders$geno),dimnames = list(missing, 
+                      ncol(founders$geno),dimnames = list(missing.names, 
                       colnames(founders$geno)))), check.names = FALSE)
       founders$code = c(founders$code, missing)
       names(founders$code)[(length(founders$code) - 
