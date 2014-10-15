@@ -21,7 +21,7 @@
 #                  chromosome as the model progresses.
 calc.genoprob.alleles = function(data, chr, founders, snps, output.dir = ".",
                         trans.prob.fxn = do.trans.probs, plot = FALSE,
-                        write.gp36=FALSE) {
+                        write.gp36=FALSE, write.b=FALSE) {
   # No NAs in geno.
   if(any(is.na(data$geno))) {
     data$geno[is.na(data$geno)] = "N"
@@ -123,9 +123,9 @@ calc.genoprob.alleles = function(data, chr, founders, snps, output.dir = ".",
       
       # Write out the smoothed probabilities and the emission probabilities.
       write.results(prsmth = prsmth, b = female.b, output.dir = output.dir, chr = curr.chr,
-                    all.chr = chr, sex = "F")
+                    all.chr = chr, sex = "F", write.gp36=write.gp36, write.b=write.b)
       write.results(b = male.b, output.dir = output.dir, chr = curr.chr,
-                    all.chr = chr, sex = "M")
+                    all.chr = chr, sex = "M", write.gp36=write.gp36, write.b=write.b)
 					
     } else if (curr.chr == "Y") {
       stop("Chr Y not implemented yet.")
@@ -143,7 +143,8 @@ calc.genoprob.alleles = function(data, chr, founders, snps, output.dir = ".",
       # Write out the smoothed probabilities and the founder state meand and 
       # variances.
       write.results(prsmth = tmp$prsmth, b = tmp$b, output.dir = output.dir, 
-	                chr = curr.chr, all.chr = chr, write.gp36=write.gp36)
+	                chr = curr.chr, all.chr = chr, write.gp36=write.gp36,
+                        write.b=write.b)
       rm(tmp)
     } # else
     gc()

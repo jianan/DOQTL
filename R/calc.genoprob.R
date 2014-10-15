@@ -30,7 +30,7 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
                          plot = TRUE, array = c("megamuga", "muga", "other"),
                          sampletype = c("DO", "CC", "DOF1", "other"), method =
                          c("intensity", "allele"), founders, transprobs, snps,
-                         write.gp36=FALSE) {
+                         write.gp36=FALSE, write.b=FALSE) {
 
   if(missing(data)) {
     stop(paste("data is missing. Please supply data to process."))
@@ -548,7 +548,7 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
      gc()
      calc.genoprob.alleles(data = data, chr = chr, founders = founders, snps = snps,
                            output.dir = output.dir, trans.prob.fxn = trans.prob.fxn,
-                           plot = plot, write.gp36=write.gp36)
+                           plot = plot, write.gp36=write.gp36, write.b=write.b)
 
   } else if(method == "intensity") {
 
