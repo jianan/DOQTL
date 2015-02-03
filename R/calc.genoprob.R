@@ -11,7 +11,7 @@
 #                        theta & rho mean and variance files.
 #            plot: boolean that is true if the user would like to plot the
 #                  genotypes after reconstruction.
-#            array: character, with the type of array used to genotype the 
+#            array: character, with the type of array used to genotype the
 #                   samples. The muga and megamuga options are for the Mouse
 #                   Universal Genotyping Arrays. Options are 'muga', 'megamuga',
 #                   or 'other'.
@@ -30,14 +30,15 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
                          plot = TRUE, array = c("megamuga", "muga", "other"),
                          sampletype = c("DO", "CC", "DOF1", "other"), method =
                          c("intensity", "allele"), founders, transprobs, snps,
-                         write.gp36=FALSE, write.b=FALSE) {
+                         write.gp36=FALSE, write.b=FALSE,
+    cc.gen=structure(c(21, 64, 24, 10, 5, 9, 5, 3, 3), .Names = 4:12)) {
 
   if(missing(data)) {
     stop(paste("data is missing. Please supply data to process."))
   } # if(missing(data))
 
   if(!is.null(data$sex)) {
-    if(is.matrix(data$sex) || is.list(data$sex)) { 
+    if(is.matrix(data$sex) || is.list(data$sex)) {
       nm = rownames(data$sex)
       data$sex = as.character(data$sex[,1])
       names(data$sex) = nm
@@ -47,7 +48,7 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
   } # else
 
   if(!is.null(data$gen)) {
-    if(is.matrix(data$gen) || is.list(data$gen)) { 
+    if(is.matrix(data$gen) || is.list(data$gen)) {
       nm = rownames(data$gen)
       data$gen = as.character(data$gen[,1])
       names(data$gen) = nm
@@ -61,13 +62,13 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
   attr(data, "array")  = array
   attr(data, "sampletype") = sampletype
 
-  # If the sampletype is CC or DO and array is muga or megamuga, then get the 
+  # If the sampletype is CC or DO and array is muga or megamuga, then get the
   # founder data.
   ### CC or DO ###
   if(sampletype == "CC" | sampletype == "DO") {
     ### MUGA ###
     if(array == "muga") {
-      # Get the MUGA SNPs and subset them to keep the ones that we use for 
+      # Get the MUGA SNPs and subset them to keep the ones that we use for
       # genotyping.
 	# We have to put this line in to satisfy R CMD build --as-cran
       muga_snps = NULL
@@ -80,7 +81,7 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
       muga_code = NULL
       load(url("ftp://ftp.jax.org/MUGA/muga_sex.Rdata"))
       load(url("ftp://ftp.jax.org/MUGA/muga_code.Rdata"))
-      
+
       ### Allele Call ###
       if(method == "allele") {
         # We have to put this line in to satisfy R CMD build --as-cran
@@ -112,7 +113,7 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
         load(url("ftp://ftp.jax.org/MUGA/muga_x.Rdata"))
         load(url("ftp://ftp.jax.org/MUGA/muga_y.Rdata"))
         founders = list(x = t(muga_x[rownames(muga_x) %in% snps[,1],]),
-                        y = t(muga_y[rownames(muga_y) %in% snps[,1],]), 
+                        y = t(muga_y[rownames(muga_y) %in% snps[,1],]),
                         sex = muga_sex, code = muga_code,
                         states = create.genotype.states(LETTERS[1:8]))
 
@@ -137,7 +138,7 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
 
     ### MegaMUGA ###
     } else if(array == "megamuga") {
-      
+
       # Get the SNPs on the MegaMUGA and subset them to keep the ones for
       # the CC/DO mice.
       # We have to put this line in to satisfy R CMD build --as-cran
@@ -158,7 +159,7 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
       MM_code = NULL
       load(url("ftp://ftp.jax.org/MUGA/MM_sex.Rdata"))
       load(url("ftp://ftp.jax.org/MUGA/MM_code.Rdata"))
- 
+
      ### Allelle Call ###
       if(method == "allele") {
         # We have to put this line in to satisfy R CMD build --as-cran
@@ -201,7 +202,7 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
         MM_y = MM_y[,-remove]
         MM_sex  = MM_sex[-remove]
         MM_code = MM_code[-remove]
-        founders = list(x = t(MM_x[rownames(MM_x) %in% snps[,1],]), 
+        founders = list(x = t(MM_x[rownames(MM_x) %in% snps[,1],]),
                         y = t(MM_y[rownames(MM_y) %in% snps[,1],]),
                         sex = MM_sex, code = MM_code,
                         states = create.genotype.states(LETTERS[1:8]))
@@ -227,7 +228,7 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
         if(!all(colnames(data$y) == colnames(founders$y))) {
           stop("SNP names in data$y and founders$y do not match for MegaMUGA.")
         } # if(!all(colnames(data$y) == colnames(founder$y)))
-        
+
         rm(MM_x, MM_y)
       } # else
       rm(MM_sex, MM_code)
@@ -251,7 +252,7 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
       ### Allele Call ###
       if(method == "allele") {
         founders = list(geno = founders$geno, sex = founders$sex,
-                   code = founders$code, states = 
+                   code = founders$code, states =
                    create.genotype.states(LETTERS[1:8]))
         # Synch up the SNPs in the data.
         founders$geno = founders$geno[,colnames(founders$geno) %in% snps[,1]]
@@ -274,7 +275,7 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
       ### Intensity ###
       } else if(method == "intensity") {
         founders = list(x = founders$x, y = founders$y,
-                   code = founders$code, sex = founders$sex, states = 
+                   code = founders$code, sex = founders$sex, states =
                    create.genotype.states(LETTERS[1:8]))
         # Synch up the SNPs in the data.
         founders$x = as.matrix(founders$x[,colnames(founders$x) %in% snps[,1]])
@@ -421,7 +422,7 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
           states = list(auto = states, X = list(F = states, M = "I"),
                    founders = LETTERS[1:9])
         } else {
-          stop(paste("founders$direction =", founders$direction, 
+          stop(paste("founders$direction =", founders$direction,
                ". founders$direction must be either MUTxDO or DOxMUT. See",
                "help(calc.genoprob) for more information."))
         } # else
@@ -449,7 +450,7 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
         if(!all(colnames(data$y) == colnames(founders$y))) {
           stop("SNP names in data$y and founders$y do not match for MegaMUGA.")
         } # if(!all(colnames(data$y) == colnames(founder$y)))
-        
+
         rm(MM_x, MM_y)
 
       } # else
@@ -488,12 +489,14 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
   output.dir = add.slash(output.dir)
 
   # Set the transition probability function.
-  trans.prob.fxn = do.trans.probs
-
-  if(sampletype == "CC") {
+  if(sampletype == "DO") {
+    trans.prob.fxn = do.trans.probs
+    attr(trans.prob.fxn, "cc.gen") = cc.gen
+  } else if(sampletype == "CC") {
     trans.prob.fxn = cc.trans.probs
   } else if(sampletype == "DOF1") {
     trans.prob.fxn = dof1.trans.probs
+    attr(trans.prob.fxn, "cc.gen") = cc.gen
   } else if(sampletype == "other") {
     trans.prob.fxn = generic.trans.probs
   } # else
@@ -513,7 +516,7 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
 
   if(method == "allele") {
 
-     # Convert the sample names into names that can be written out 
+     # Convert the sample names into names that can be written out
      # as files.
      rownames(data$geno) = make.names(rownames(data$geno))
      names(data$sex) = make.names(names(data$sex))
@@ -532,7 +535,7 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
      savefxn = function(d, f) { save(d, file = f) }
      mapply(savefxn, data$geno, paste(tmpdir, "/data_geno_chr", names(data$geno),
             ".Rdata", sep = ""))
-     mapply(savefxn, founders$geno, paste(tmpdir, "/founders_geno_chr", 
+     mapply(savefxn, founders$geno, paste(tmpdir, "/founders_geno_chr",
             names(founders$geno), ".Rdata", sep = ""))
      # Replace the data with temporary file names.
      data$geno = dir(path = tmpdir, pattern = "data_geno_chr", full.names = TRUE)
@@ -552,7 +555,7 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
 
   } else if(method == "intensity") {
 
-     # Convert the sample names into names that can be written out 
+     # Convert the sample names into names that can be written out
      # as files.
      rownames(data$x) = make.names(rownames(data$x))
      rownames(data$y) = make.names(rownames(data$y))
@@ -578,16 +581,16 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
             ".Rdata", sep = ""))
      mapply(savefxn, data$y, paste(tmpdir, "/data_y_chr", names(data$y),
             ".Rdata", sep = ""))
-     mapply(savefxn, founders$x, paste(tmpdir, "/founders_x_chr", 
+     mapply(savefxn, founders$x, paste(tmpdir, "/founders_x_chr",
             names(founders$x), ".Rdata", sep = ""))
-     mapply(savefxn, founders$y, paste(tmpdir, "/founders_y_chr", 
+     mapply(savefxn, founders$y, paste(tmpdir, "/founders_y_chr",
             names(founders$y), ".Rdata", sep = ""))
 
      # Replace the data with temporary file names.
      data$x = dir(path = tmpdir, pattern = "data_x_chr", full.names = TRUE)
      data$y = dir(path = tmpdir, pattern = "data_y_chr", full.names = TRUE)
      founders$x = dir(path = tmpdir, pattern = "founders_x_chr", full.names = TRUE)
-     founders$y = dir(path = tmpdir, pattern = "founders_y_chr", full.names = TRUE)    
+     founders$y = dir(path = tmpdir, pattern = "founders_y_chr", full.names = TRUE)
 
      # Split up the SNPs and order them numerically.
      snps = split(snps, snps[,2])
@@ -597,8 +600,8 @@ calc.genoprob = function(data, chr = "all", output.dir = ".",
      options(warn = old.warn)
      gc()
 
-     calc.genoprob.intensity(data = data, chr = chr, founders = founders, 
-                             snps = snps, output.dir = output.dir, 
+     calc.genoprob.intensity(data = data, chr = chr, founders = founders,
+                             snps = snps, output.dir = output.dir,
                              trans.prob.fxn = trans.prob.fxn, plot = plot)
 
   } # else if(method = "intensity")

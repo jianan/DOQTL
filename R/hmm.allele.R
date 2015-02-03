@@ -18,8 +18,9 @@ hmm.allele = function(data, founders, sex, snps, chr, trans.prob.fxn) {
   # Save the initial emission probabilities as pseudocounts.
   pseudocounts = b
   if(attr(data, "sampletype") == "DO") {
-    a = trans.prob.fxn(states = founders$states, snps = snps, chr = chr, 
-        sex = sex, do.gen = data$gen)
+    cc.gen = attr(trans.prob.fxn, "cc.gen")
+    a = trans.prob.fxn(states = founders$states, snps = snps, chr = chr,
+        sex = sex, do.gen = data$gen, cc.gen = cc.gen)
   } else {
     a = list(trans.prob.fxn(states = founders$states, snps = snps, chr = chr,
         sex = "F"))
@@ -31,7 +32,7 @@ hmm.allele = function(data, founders, sex, snps, chr, trans.prob.fxn) {
     if(FALSE) {
       prsmth.plot(1, founders$states, init.hmm$prsmth)
     } # if(plot)
-	
+
     # Initialize the log-likelihood to a large negative number.
     lastLogLik = logLik
     # Filter and smooth each generation separately because they each have a
@@ -47,7 +48,7 @@ hmm.allele = function(data, founders, sex, snps, chr, trans.prob.fxn) {
       } # if(any(names(data) == "gen"))
       res = .C(C_filter_smooth_allele,
                dims = as.integer(c(dim(init.hmm$prsmth[,gen,,drop = FALSE]), 4)),
-               geno = as.integer(data$geno[gen,]), 
+               geno = as.integer(data$geno[gen,]),
                a = as.double(a[[i]]),
                b = as.double(b),
                prsmth = as.double(init.hmm$prsmth[,gen,,drop = FALSE]),
@@ -63,7 +64,7 @@ hmm.allele = function(data, founders, sex, snps, chr, trans.prob.fxn) {
     } # if(p == 1)
     # Update the parameters and state means and variances.
     print("Updating Parameters ...")
-    b = parameter.update.alleles(geno = data$geno, b = b, 
+    b = parameter.update.alleles(geno = data$geno, b = b,
         pseudocounts = pseudocounts, prsmth = init.hmm$prsmth)
     p = p + 1
   } # while(p < maxIter & logLik - lastLogLik > epsilon
@@ -72,6 +73,6 @@ hmm.allele = function(data, founders, sex, snps, chr, trans.prob.fxn) {
   if(p >= maxIter) {
     print("Maximum iterations reached")
   } # if(p >= maxIter)
-    
+
   return(list(b = b, prsmth = init.hmm$prsmth))
 } # hmm.allele
